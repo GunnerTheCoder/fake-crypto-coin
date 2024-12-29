@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fake Crypto Coin</title>
+  <style>
+    /* Basic styling */
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #f4f4f9;
+    }
+    .container {
+      text-align: center;
+      padding: 20px;
+      border: 1px solid #ccc;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    input, button {
+      margin: 10px;
+    }
+    #coinPrice {
+      font-size: 2em;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Welcome to Fake Crypto Coin</h1>
+    
+    <div id="authSection">
+      <h2>Login / Register</h2>
+      <input type="text" id="username" placeholder="Username" />
+      <input type="password" id="password" placeholder="Password" />
+      <button onclick="login()">Login</button>
+      <button onclick="register()">Register</button>
+    </div>
+    
+    <div id="coinSection" style="display: none;">
+      <h2>Your Balance: $<span id="balance">5</span></h2>
+      <h3>Coin Price: $<span id="coinPrice">1.00000000000000000000</span></h3>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    let token = '';
+    const socket = io();
+
+    // Handle Coin Price Updates
+    socket.on('coinPrice', (newPrice) => {
+      document.getElementById('coinPrice').innerText = newPrice;
+    });
+
+    function login() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      
+      fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      })
+      .then(response => response.json())
+      .then(data => {
+        token = data.token;
+        document.getElementById('authSection').style.display = 'none';
+        document.getElementById('coinSection').style.display = 'block';
+      });
+    }
+
+    function register() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      
+      fetch('/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      })
+      .then(() => login());
+    }
+  </script>
+</body>
+</html>
